@@ -2,7 +2,7 @@ package com.glfs.chatgpt.session.defaults;
 
 import com.glfs.chatgpt.interceptor.OpenAiInterceptor;
 import com.glfs.chatgpt.session.Configuration;
-import com.glfs.chatgpt.session.IOpenAiApi;
+import com.glfs.chatgpt.IOpenAiApi;
 import com.glfs.chatgpt.session.OpenAiSession;
 import com.glfs.chatgpt.session.OpenAiSessionFactory;
 import okhttp3.OkHttpClient;
@@ -37,6 +37,8 @@ public class DefaultOpenAiSessionFactory implements OpenAiSessionFactory {
                 //设置代理服务器
                 //.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 21284)))
                 .build();
+        configuration.setOkHttpClient(okHttpClient);
+
         // 3. 创建 API 服务
         IOpenAiApi openAiApi = new Retrofit.Builder()
                 .baseUrl(configuration.getApiHost())
@@ -46,7 +48,8 @@ public class DefaultOpenAiSessionFactory implements OpenAiSessionFactory {
                 //以支持 Retrofit 将 JSON 数据转换为 Java 对象。
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build().create(IOpenAiApi.class);
+        configuration.setOpenAiApi(openAiApi);
 
-        return new DefaultOpenAiSession(openAiApi);
+        return new DefaultOpenAiSession(configuration);
     }
 }
