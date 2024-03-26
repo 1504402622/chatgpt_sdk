@@ -7,6 +7,7 @@ import lombok.Getter;
  * 通用类(1.设置Roke枚举类)
  */
 public class Constants {
+    public final static String NULL = "NULL";
 
     @Getter
     @AllArgsConstructor
