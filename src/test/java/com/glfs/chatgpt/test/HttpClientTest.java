@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HttpClientTest {
 
+    //gpt3.5
     @Test
     public void test_client() {
         //创建一个用于记录http请求和响应信息的HttpLoggingInterceptor
@@ -99,9 +100,10 @@ public class HttpClientTest {
         });
     }
 
+    //gpt3.5 流式测试
     @Test
     public void test_client_stream() throws JsonProcessingException, InterruptedException {
-//创建一个用于记录http请求和响应信息的HttpLoggingInterceptor
+    //创建一个用于记录http请求和响应信息的HttpLoggingInterceptor
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
         httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
@@ -151,15 +153,24 @@ public class HttpClientTest {
                 .build();
 
 
+        //增加阻断
+        CountDownLatch latch = new CountDownLatch(1);
+        // 2. 发起请求
         EventSource eventSource = factory.newEventSource(request, new EventSourceListener() {
             @Override
             public void onEvent(EventSource eventSource, String id, String type, String data) {
                 log.info("测试结果：{}", data);
             }
+
+            //事件关闭时调用计数器减少
+            @Override
+            public void onClosed(EventSource eventSource){
+                // 减少计数器，确保计数器减少到0以便释放阻塞
+                latch.countDown();
+            }
         });
 
-        // 阻断主线程，等待其他线程调用(实际上event线程不会返回所以一直阻断)
-        new CountDownLatch(1).await();
-
+        // 创建 CountDownLatch，用于等待事件输出完成
+        latch.await();
     }
 }
